@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Box from '@mui/material/Box';
 import GoogleLogin from 'react-google-login';
 import { useNavigate } from "react-router-dom";
@@ -9,6 +9,7 @@ import { makeStyles } from "@mui/styles";
 import { getAuth, signInWithRedirect, GoogleAuthProvider, getRedirectResult, onAuthStateChanged } from "firebase/auth";
 
 import firebaseConfig from '../app/firebaseConfig';
+import { useDispatch } from "react-redux";
 
 
 const useStyles = makeStyles({
@@ -34,7 +35,28 @@ const useStyles = makeStyles({
 export default function LoginPage() {
 	const navigate = useNavigate();
 	const classes = useStyles();
-    // const auth = getAuth();
+
+	const dispatch = useDispatch();
+	const auth = getAuth();
+
+	useEffect(() => {
+		onAuthStateChanged(auth, (user) => {
+			if (user) {
+				// User is signed in, see docs for a list of available properties
+				// https://firebase.google.com/docs/reference/js/firebase.User
+				console.log("Firebase auth user :: ", user)
+				const uid = user.uid;
+				console.log("User Logged in...... navigating to dashboard")
+				// ...
+				navigate('/dashboard')
+			} else {
+				// User is signed out
+				// ...
+				console.log("User Logged out......")
+				navigate('/')
+			}
+		});
+	}, [auth, dispatch]);
     
     const handleGoogleSignIn = () => {
         const provider = new GoogleAuthProvider();
